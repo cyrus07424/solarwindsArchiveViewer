@@ -21,6 +21,6 @@
     "@types/react-dom": "^19",
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4",
-    "@types/pako": "^2.0.3"
+    "@types/pako": "^2.0.4"
   }
 }
