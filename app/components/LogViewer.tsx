@@ -52,6 +52,10 @@ export default function LogViewer({ logs }: LogViewerProps) {
     }
   };
 
+  const messageClassName = wrapMessage
+    ? 'text-sm text-gray-900 whitespace-pre-wrap break-words'
+    : 'text-sm text-gray-900 truncate';
+
   if (logs.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-6">
@@ -163,7 +167,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
                   <span className="text-xs text-gray-500">{log.app_name}</span>
                   <span className="text-xs text-gray-500">{log.source}</span>
                 </div>
-                <div className={`text-sm text-gray-900 ${wrapMessage ? 'whitespace-pre-wrap break-words' : 'truncate'}`}>
+                <div className={messageClassName}>
                   {log.message}
                 </div>
               </div>
