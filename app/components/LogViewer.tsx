@@ -13,12 +13,18 @@ export default function LogViewer({ logs }: LogViewerProps) {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
+  const [isDescending, setIsDescending] = useState(true);
+  const [wrapMessage, setWrapMessage] = useState(false);
 
   const filteredLogs = useMemo(() => {
     let filtered = filterLogsByText(logs, searchText);
     filtered = filterLogsByTimeRange(filtered, startTime, endTime);
-    return filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [logs, searchText, startTime, endTime]);
+    return filtered.sort((a, b) =>
+      isDescending
+        ? new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+        : new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+  }, [logs, searchText, startTime, endTime, isDescending]);
 
   const formatTimestamp = (timestamp: string) => {
     try {
@@ -104,6 +110,27 @@ export default function LogViewer({ logs }: LogViewerProps) {
           </div>
         </div>
 
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <label className="inline-flex items-center text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={isDescending}
+              onChange={(e) => setIsDescending(e.target.checked)}
+              className="mr-2"
+            />
+            新しいログを上に表示（降順）
+          </label>
+          <label className="inline-flex items-center text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={wrapMessage}
+              onChange={(e) => setWrapMessage(e.target.checked)}
+              className="mr-2"
+            />
+            メッセージを折り返して全表示
+          </label>
+        </div>
+
         {(searchText || startTime || endTime) && (
           <button
             onClick={() => {
@@ -136,7 +163,9 @@ export default function LogViewer({ logs }: LogViewerProps) {
                   <span className="text-xs text-gray-500">{log.app_name}</span>
                   <span className="text-xs text-gray-500">{log.source}</span>
                 </div>
-                <div className="text-sm text-gray-900 truncate">{log.message}</div>
+                <div className={`text-sm text-gray-900 ${wrapMessage ? 'whitespace-pre-wrap break-all' : 'truncate'}`}>
+                  {log.message}
+                </div>
               </div>
               <div className="text-xs text-gray-400 ml-2">
                 {selectedLog?.id === log.id ? '−' : '+'}
