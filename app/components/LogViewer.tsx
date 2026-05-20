@@ -68,7 +68,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Log Viewer ({displayedLogs.length} of {logs.length} entries)
+          Log Viewer ({filteredLogs.length} of {logs.length} entries)
         </h2>
         
         {/* Search Controls */}
@@ -122,7 +122,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
               onChange={(e) => setIsDescending(e.target.checked)}
               className="mr-2"
             />
-            Show reverse order (from original file order)
+            Reverse original file order
           </label>
           <label className="inline-flex items-center text-sm text-gray-700">
             <input
