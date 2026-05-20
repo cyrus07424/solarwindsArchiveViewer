@@ -122,7 +122,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
               onChange={(e) => setIsDescending(e.target.checked)}
               className="mr-2"
             />
-            降順で表示（新しいログを上）
+            Show newest first (descending)
           </label>
           <label className="inline-flex items-center text-sm text-gray-700">
             <input
@@ -131,7 +131,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
               onChange={(e) => setWrapMessage(e.target.checked)}
               className="mr-2"
             />
-            メッセージを折り返して全表示
+            Wrap message text (show full content)
           </label>
         </div>
 
