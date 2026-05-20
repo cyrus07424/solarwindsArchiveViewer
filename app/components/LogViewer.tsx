@@ -19,12 +19,12 @@ export default function LogViewer({ logs }: LogViewerProps) {
   const filteredLogs = useMemo(() => {
     let filtered = filterLogsByText(logs, searchText);
     filtered = filterLogsByTimeRange(filtered, startTime, endTime);
-    return filtered.sort((a, b) =>
-      isDescending
-        ? new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-        : new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-    );
-  }, [logs, searchText, startTime, endTime, isDescending]);
+    return filtered;
+  }, [logs, searchText, startTime, endTime]);
+
+  const displayedLogs = useMemo(() => {
+    return isDescending ? [...filteredLogs].reverse() : filteredLogs;
+  }, [filteredLogs, isDescending]);
 
   const formatTimestamp = (timestamp: string) => {
     try {
@@ -68,7 +68,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Log Viewer ({filteredLogs.length} of {logs.length} entries)
+          Log Viewer ({displayedLogs.length} of {logs.length} entries)
         </h2>
         
         {/* Search Controls */}
@@ -122,7 +122,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
               onChange={(e) => setIsDescending(e.target.checked)}
               className="mr-2"
             />
-            Show newest first (descending)
+            Show reverse order (from original file order)
           </label>
           <label className="inline-flex items-center text-sm text-gray-700">
             <input
@@ -151,7 +151,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
 
       {/* Log Entries */}
       <div className="space-y-2 max-h-96 overflow-y-auto">
-        {filteredLogs.map((log) => (
+        {displayedLogs.map((log) => (
           <div
             key={log.id}
             className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
@@ -188,7 +188,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
         ))}
       </div>
 
-      {filteredLogs.length === 0 && logs.length > 0 && (
+      {displayedLogs.length === 0 && logs.length > 0 && (
         <p className="text-gray-500 text-center py-8">
           No logs match the current filters.
         </p>
