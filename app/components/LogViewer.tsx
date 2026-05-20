@@ -118,7 +118,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
               onChange={(e) => setIsDescending(e.target.checked)}
               className="mr-2"
             />
-            新しいログを上に表示（降順）
+            降順で表示（新しいログを上）
           </label>
           <label className="inline-flex items-center text-sm text-gray-700">
             <input
@@ -163,7 +163,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
                   <span className="text-xs text-gray-500">{log.app_name}</span>
                   <span className="text-xs text-gray-500">{log.source}</span>
                 </div>
-                <div className={`text-sm text-gray-900 ${wrapMessage ? 'whitespace-pre-wrap break-all' : 'truncate'}`}>
+                <div className={`text-sm text-gray-900 ${wrapMessage ? 'whitespace-pre-wrap break-words' : 'truncate'}`}>
                   {log.message}
                 </div>
               </div>
