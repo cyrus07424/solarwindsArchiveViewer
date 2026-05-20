@@ -13,7 +13,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
-  const [isDescending, setIsDescending] = useState(true);
+  const [showReversedOrder, setShowReversedOrder] = useState(true);
   const [wrapMessage, setWrapMessage] = useState(false);
 
   const filteredLogs = useMemo(() => {
@@ -23,8 +23,8 @@ export default function LogViewer({ logs }: LogViewerProps) {
   }, [logs, searchText, startTime, endTime]);
 
   const displayedLogs = useMemo(() => {
-    return isDescending ? [...filteredLogs].reverse() : filteredLogs;
-  }, [filteredLogs, isDescending]);
+    return showReversedOrder ? [...filteredLogs].reverse() : filteredLogs;
+  }, [filteredLogs, showReversedOrder]);
 
   const formatTimestamp = (timestamp: string) => {
     try {
@@ -118,11 +118,11 @@ export default function LogViewer({ logs }: LogViewerProps) {
           <label className="inline-flex items-center text-sm text-gray-700">
             <input
               type="checkbox"
-              checked={isDescending}
-              onChange={(e) => setIsDescending(e.target.checked)}
+              checked={showReversedOrder}
+              onChange={(e) => setShowReversedOrder(e.target.checked)}
               className="mr-2"
             />
-            Reverse original file order
+            Reverse display order (vs original file order)
           </label>
           <label className="inline-flex items-center text-sm text-gray-700">
             <input
