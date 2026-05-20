@@ -13,12 +13,18 @@ export default function LogViewer({ logs }: LogViewerProps) {
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
+  const [showReversedOrder, setShowReversedOrder] = useState(true);
+  const [wrapMessage, setWrapMessage] = useState(false);
 
   const filteredLogs = useMemo(() => {
     let filtered = filterLogsByText(logs, searchText);
     filtered = filterLogsByTimeRange(filtered, startTime, endTime);
-    return filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    return filtered;
   }, [logs, searchText, startTime, endTime]);
+
+  const displayedLogs = useMemo(() => {
+    return showReversedOrder ? [...filteredLogs].reverse() : filteredLogs;
+  }, [filteredLogs, showReversedOrder]);
 
   const formatTimestamp = (timestamp: string) => {
     try {
@@ -45,6 +51,10 @@ export default function LogViewer({ logs }: LogViewerProps) {
         return 'text-gray-600 bg-gray-50';
     }
   };
+
+  const messageClassName = wrapMessage
+    ? 'text-sm text-gray-900 whitespace-pre-wrap break-words'
+    : 'text-sm text-gray-900 truncate';
 
   if (logs.length === 0) {
     return (
@@ -104,6 +114,27 @@ export default function LogViewer({ logs }: LogViewerProps) {
           </div>
         </div>
 
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <label className="inline-flex items-center text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={showReversedOrder}
+              onChange={(e) => setShowReversedOrder(e.target.checked)}
+              className="mr-2"
+            />
+            Show logs in reverse order
+          </label>
+          <label className="inline-flex items-center text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={wrapMessage}
+              onChange={(e) => setWrapMessage(e.target.checked)}
+              className="mr-2"
+            />
+            Wrap message text
+          </label>
+        </div>
+
         {(searchText || startTime || endTime) && (
           <button
             onClick={() => {
@@ -120,7 +151,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
 
       {/* Log Entries */}
       <div className="space-y-2 max-h-96 overflow-y-auto">
-        {filteredLogs.map((log) => (
+        {displayedLogs.map((log) => (
           <div
             key={log.id}
             className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 cursor-pointer"
@@ -136,7 +167,9 @@ export default function LogViewer({ logs }: LogViewerProps) {
                   <span className="text-xs text-gray-500">{log.app_name}</span>
                   <span className="text-xs text-gray-500">{log.source}</span>
                 </div>
-                <div className="text-sm text-gray-900 truncate">{log.message}</div>
+                <div className={messageClassName}>
+                  {log.message}
+                </div>
               </div>
               <div className="text-xs text-gray-400 ml-2">
                 {selectedLog?.id === log.id ? '−' : '+'}
