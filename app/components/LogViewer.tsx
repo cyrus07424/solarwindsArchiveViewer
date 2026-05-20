@@ -188,7 +188,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
         ))}
       </div>
 
-      {displayedLogs.length === 0 && logs.length > 0 && (
+      {filteredLogs.length === 0 && logs.length > 0 && (
         <p className="text-gray-500 text-center py-8">
           No logs match the current filters.
         </p>
