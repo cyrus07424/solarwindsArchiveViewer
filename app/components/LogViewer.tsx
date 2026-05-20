@@ -122,7 +122,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
               onChange={(e) => setShowReversedOrder(e.target.checked)}
               className="mr-2"
             />
-            Reverse display order (vs original file order)
+            Show logs in reverse order
           </label>
           <label className="inline-flex items-center text-sm text-gray-700">
             <input
@@ -131,7 +131,7 @@ export default function LogViewer({ logs }: LogViewerProps) {
               onChange={(e) => setWrapMessage(e.target.checked)}
               className="mr-2"
             />
-            Wrap message text (show full content)
+            Wrap message text
           </label>
         </div>
 
