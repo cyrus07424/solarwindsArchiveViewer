@@ -1,5 +1,6 @@
 import * as pako from 'pako';
 import { TSVLogEntry, JSONLogEntry, LogEntry } from '../types/log';
+import { stripAnsiCodes } from './ansi';
 
 // Parse gzip file and return the decompressed content
 export async function parseGzipFile(file: File): Promise<string> {
@@ -112,7 +113,7 @@ export function filterLogsByText(logs: LogEntry[], searchText: string): LogEntry
   
   const searchLower = searchText.toLowerCase();
   return logs.filter(log => 
-    log.message.toLowerCase().includes(searchLower) ||
+    stripAnsiCodes(log.message).toLowerCase().includes(searchLower) ||
     log.app_name.toLowerCase().includes(searchLower) ||
     log.source.toLowerCase().includes(searchLower) ||
     log.severity.toLowerCase().includes(searchLower)
