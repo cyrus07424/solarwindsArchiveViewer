@@ -14,15 +14,15 @@ const ANSI_COLORS_FG: Record<number, string> = {
   34: '#0000cc',
   35: '#aa00aa',
   36: '#00aaaa',
-  37: '#aaaaaa',
+  37: '#555555',
   90: '#555555',
-  91: '#ff5555',
-  92: '#55ff55',
-  93: '#ffff55',
-  94: '#5555ff',
-  95: '#ff55ff',
-  96: '#55ffff',
-  97: '#ffffff',
+  91: '#cc2222',
+  92: '#007700',
+  93: '#888800',
+  94: '#2222cc',
+  95: '#cc00cc',
+  96: '#008888',
+  97: '#333333',
 };
 
 const ANSI_COLORS_BG: Record<number, string> = {
@@ -140,8 +140,8 @@ function stateToStyle(state: AnsiState): CSSProperties {
 function xterm256ToHex(index: number): string {
   if (index < 16) {
     const basic: string[] = [
-      '#000000','#cc0000','#00aa00','#aaaa00','#0000cc','#aa00aa','#00aaaa','#aaaaaa',
-      '#555555','#ff5555','#55ff55','#ffff55','#5555ff','#ff55ff','#55ffff','#ffffff',
+      '#000000','#cc0000','#00aa00','#aaaa00','#0000cc','#aa00aa','#00aaaa','#555555',
+      '#555555','#cc2222','#007700','#888800','#2222cc','#cc00cc','#008888','#333333',
     ];
     return basic[index] || '#aaaaaa';
   }
