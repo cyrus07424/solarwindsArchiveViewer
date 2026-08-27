@@ -1,163 +1,134 @@
 'use client';
 
-import { useState } from 'react';
-import FileUpload from './components/FileUpload';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import LogViewer from './components/LogViewer';
 import { LogEntry } from './types/log';
-
-// Sample data for demonstration
-const sampleLogs: LogEntry[] = [
-  {
-    id: "1889499905812090900",
-    timestamp: "2025-08-05T21:25:05.000Z",
-    app_name: "my-app-name",
-    source: "heroku/web.1",
-    severity: "Info",
-    message: "Idling",
-    raw: {
-      event_id: "1889499905812090900",
-      timestamp1: "2025-08-05 21:25:05",
-      timestamp2: "2025-08-05 21:25:05",
-      token: "14114195911",
-      app_name: "my-app-name",
-      ip: "52.44.5.217",
-      facility: "Local0",
-      severity: "Info",
-      process: "heroku/web.1",
-      message: "Idling"
-    }
-  },
-  {
-    id: "1889499905812090901",
-    timestamp: "2025-08-05T21:25:05.000Z",
-    app_name: "my-app-name",
-    source: "heroku/web.1",
-    severity: "Info",
-    message: "State changed from up to down",
-    raw: {
-      event_id: "1889499905812090901",
-      timestamp1: "2025-08-05 21:25:05",
-      timestamp2: "2025-08-05 21:25:05",
-      token: "14114195911",
-      app_name: "my-app-name",
-      ip: "52.44.5.217",
-      facility: "Local0",
-      severity: "Info",
-      process: "heroku/web.1",
-      message: "State changed from up to down"
-    }
-  },
-  {
-    id: "1889499910098747420",
-    timestamp: "2025-08-05T21:25:06.000Z",
-    app_name: "my-app-name",
-    source: "heroku/web.1",
-    severity: "Info",
-    message: "Stopping all processes with SIGTERM",
-    raw: {
-      event_id: "1889499910098747420",
-      timestamp1: "2025-08-05 21:25:06",
-      timestamp2: "2025-08-05 21:25:06",
-      token: "14114195911",
-      app_name: "my-app-name",
-      ip: "34.237.99.82",
-      facility: "Local0",
-      severity: "Info",
-      process: "heroku/web.1",
-      message: "Stopping all processes with SIGTERM"
-    }
-  },
-  {
-    id: "1889499914632646656",
-    timestamp: "2025-08-05T21:25:07.000Z",
-    app_name: "my-app-name",
-    source: "heroku/web.1",
-    severity: "Info",
-    message: "Process exited with status 143",
-    raw: {
-      event_id: "1889499914632646656",
-      timestamp1: "2025-08-05 21:25:07",
-      timestamp2: "2025-08-05 21:25:07",
-      token: "14114195911",
-      app_name: "my-app-name",
-      ip: "35.174.132.118",
-      facility: "Local0",
-      severity: "Info",
-      process: "heroku/web.1",
-      message: "Process exited with status 143"
-    }
-  },
-  {
-    id: "1889499920000000000",
-    timestamp: "2025-08-05T21:25:08.000Z",
-    app_name: "my-app-name",
-    source: "heroku/web.1",
-    severity: "Error",
-    message: "Application crashed with exit code 1",
-    raw: {
-      event_id: "1889499920000000000",
-      timestamp1: "2025-08-05 21:25:08",
-      timestamp2: "2025-08-05 21:25:08",
-      token: "14114195911",
-      app_name: "my-app-name",
-      ip: "35.174.132.118",
-      facility: "Local0",
-      severity: "Error",
-      process: "heroku/web.1",
-      message: "Application crashed with exit code 1"
-    }
-  }
-];
+import { parseLogFile } from './utils/parser';
 
 export default function Home() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragCounterRef = useRef(0);
 
-  const handleLogsLoaded = (newLogs: LogEntry[]) => {
-    setLogs(newLogs);
-  };
+  const handleFile = useCallback(async (file: File) => {
+    setIsLoading(true);
+    setError(null);
+    setFileName(file.name);
+    try {
+      const parsed = await parseLogFile(file);
+      setLogs(parsed);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to parse file');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  const loadSampleData = () => {
-    setLogs(sampleLogs);
-  };
+  // Global drag & drop handlers
+  useEffect(() => {
+    const onDragEnter = (e: DragEvent) => {
+      e.preventDefault();
+      dragCounterRef.current++;
+      if (dragCounterRef.current === 1) setIsDragging(true);
+    };
+    const onDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      dragCounterRef.current--;
+      if (dragCounterRef.current === 0) setIsDragging(false);
+    };
+    const onDragOver = (e: DragEvent) => { e.preventDefault(); };
+    const onDrop = async (e: DragEvent) => {
+      e.preventDefault();
+      dragCounterRef.current = 0;
+      setIsDragging(false);
+      const file = e.dataTransfer?.files?.[0];
+      if (file) await handleFile(file);
+    };
+    document.addEventListener('dragenter', onDragEnter);
+    document.addEventListener('dragleave', onDragLeave);
+    document.addEventListener('dragover', onDragOver);
+    document.addEventListener('drop', onDrop);
+    return () => {
+      document.removeEventListener('dragenter', onDragEnter);
+      document.removeEventListener('dragleave', onDragLeave);
+      document.removeEventListener('dragover', onDragOver);
+      document.removeEventListener('drop', onDrop);
+    };
+  }, [handleFile]);
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
-            Solarwinds Archive Viewer
-          </h1>
-          <p className="text-center text-gray-600">
-            Upload and view Solarwinds (formerly Papertrail) log archives
-          </p>
+    <div className="flex flex-col h-screen bg-gray-900 text-white overflow-hidden">
+      {/* Header */}
+      <header className="flex-shrink-0 flex items-center gap-4 px-4 py-2 bg-gray-800 border-b border-gray-700">
+        <h1 className="text-base font-bold text-white">Solarwinds Archive Viewer</h1>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 rounded transition-colors"
+          >
+            Open File
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".tsv,.json,.gz,.txt"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (file) { await handleFile(file); e.target.value = ''; }
+            }}
+          />
+          {fileName && (
+            <span className="text-sm text-gray-300 truncate max-w-60" title={fileName}>
+              📄 {fileName}
+            </span>
+          )}
         </div>
-        
-        <FileUpload onLogsLoaded={handleLogsLoaded} />
-        
-        {/* Demo button */}
-        {logs.length === 0 && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-medium text-yellow-800">Demo Mode</h3>
-                <p className="text-sm text-yellow-700">Try the viewer with sample log data</p>
-              </div>
-              <button
-                onClick={loadSampleData}
-                className="px-4 py-2 bg-yellow-600 text-white text-sm rounded hover:bg-yellow-700"
-              >
-                Load Sample Data
-              </button>
-            </div>
-          </div>
+        {isLoading && (
+          <span className="text-sm text-blue-400 flex items-center gap-1">
+            <span className="inline-block w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
+            Loading...
+          </span>
         )}
-        
-        <LogViewer logs={logs} />
-      </div>
-      
-      <footer className="text-center text-gray-400 mt-8">
-        &copy; 2025 <a href="https://github.com/cyrus07424" target="_blank" className="hover:text-gray-600">cyrus</a>
-      </footer>
+        {error && (
+          <span className="text-sm text-red-400">⚠ {error}</span>
+        )}
+        <span className="ml-auto text-xs text-gray-500">
+          Drag &amp; drop a file anywhere · TSV / JSON / GZIP
+        </span>
+        <a href="https://github.com/cyrus07424" target="_blank" className="text-xs text-gray-500 hover:text-gray-300">
+          © cyrus
+        </a>
+      </header>
+
+      {/* Main area */}
+      <main className="flex-1 min-h-0 flex flex-col">
+        {logs.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center text-gray-400 gap-4 p-8">
+            <div className="text-6xl">📋</div>
+            <p className="text-xl font-medium">No logs loaded</p>
+            <p className="text-sm">Open a file or drag &amp; drop it anywhere on this page</p>
+            <p className="text-xs text-gray-500">Supported: TSV, JSON, GZIP archives</p>
+          </div>
+        ) : (
+          <LogViewer logs={logs} />
+        )}
+      </main>
+
+      {/* Drag overlay */}
+      {isDragging && (
+        <div className="fixed inset-0 z-50 bg-blue-600/30 border-4 border-dashed border-blue-400 flex items-center justify-center pointer-events-none">
+          <div className="bg-gray-900 rounded-2xl px-12 py-8 text-center shadow-2xl">
+            <div className="text-5xl mb-3">📂</div>
+            <p className="text-2xl font-bold text-white">Drop to open</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
