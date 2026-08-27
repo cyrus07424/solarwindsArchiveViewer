@@ -61,14 +61,14 @@ export default function Home() {
   }, [handleFile]);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900 text-white overflow-hidden">
+    <div className="flex flex-col h-screen bg-gray-100 text-gray-900 overflow-hidden">
       {/* Header */}
-      <header className="flex-shrink-0 flex items-center gap-4 px-4 py-2 bg-gray-800 border-b border-gray-700">
-        <h1 className="text-base font-bold text-white">Solarwinds Archive Viewer</h1>
+      <header className="flex-shrink-0 flex items-center gap-4 px-4 py-2 bg-white border-b border-gray-200 shadow-sm">
+        <h1 className="text-base font-bold text-gray-900">Solarwinds Archive Viewer</h1>
         <div className="flex items-center gap-2">
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 rounded transition-colors"
+            className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
           >
             Open File
           </button>
@@ -83,24 +83,24 @@ export default function Home() {
             }}
           />
           {fileName && (
-            <span className="text-sm text-gray-300 truncate max-w-60" title={fileName}>
+            <span className="text-sm text-gray-600 truncate max-w-60" title={fileName}>
               📄 {fileName}
             </span>
           )}
         </div>
         {isLoading && (
-          <span className="text-sm text-blue-400 flex items-center gap-1">
-            <span className="inline-block w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></span>
+          <span className="text-sm text-blue-600 flex items-center gap-1">
+            <span className="inline-block w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
             Loading...
           </span>
         )}
         {error && (
-          <span className="text-sm text-red-400">⚠ {error}</span>
+          <span className="text-sm text-red-600">⚠ {error}</span>
         )}
-        <span className="ml-auto text-xs text-gray-500">
+        <span className="ml-auto text-xs text-gray-400">
           Drag &amp; drop a file anywhere · TSV / JSON / GZIP
         </span>
-        <a href="https://github.com/cyrus07424" target="_blank" className="text-xs text-gray-500 hover:text-gray-300">
+        <a href="https://github.com/cyrus07424" target="_blank" className="text-xs text-gray-400 hover:text-gray-600">
           © cyrus
         </a>
       </header>
@@ -122,9 +122,9 @@ export default function Home() {
       {/* Drag overlay */}
       {isDragging && (
         <div className="fixed inset-0 z-50 bg-blue-600/30 border-4 border-dashed border-blue-400 flex items-center justify-center pointer-events-none">
-          <div className="bg-gray-900 rounded-2xl px-12 py-8 text-center shadow-2xl">
+          <div className="bg-white rounded-2xl px-12 py-8 text-center shadow-2xl">
             <div className="text-5xl mb-3">📂</div>
-            <p className="text-2xl font-bold text-white">Drop to open</p>
+            <p className="text-2xl font-bold text-gray-900">Drop to open</p>
           </div>
         </div>
       )}
